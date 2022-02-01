@@ -95,8 +95,8 @@ class Constants {
 	];
 
 	/**
-	 * Only defined here currently.
-	 * However, permission values equal the route names, thus making it easy on frontend to evaluate.
+	 * !! Keep in sync with src/mixins/PermissionTypes.js !!
+	 * Permission values equal the route names, thus making it easy on frontend to evaluate.
 	 */
 	// Define Form Permissions
 	public const PERMISSION_EDIT = 'edit';
