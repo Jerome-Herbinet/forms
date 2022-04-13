@@ -21,14 +21,20 @@
   -->
 
 <template>
-	<AppNavigationItem ref="navigationItem"
-		:icon="icon"
+	<ListItem ref="navigationItem"
 		:title="formTitle"
 		:to="{
 			name: routerTarget,
 			params: { hash: form.hash }
 		}"
+		:counter-number="submissionCount"
 		@click="mobileCloseNavigation">
+		<template #icon>
+			<div :class="icon" />
+		</template>
+		<template #subtitle>
+			{{ formSubTitle }}
+		</template>
 		<template v-if="!loading && !readOnly" #actions>
 			<ActionLink :href="formLink"
 				:icon="copied && copySuccess ? 'icon-checkmark-color' : 'icon-clippy'"
@@ -51,7 +57,7 @@
 				{{ t('forms', 'Delete form') }}
 			</ActionButton>
 		</template>
-	</AppNavigationItem>
+	</ListItem>
 </template>
 
 <script>
@@ -61,10 +67,11 @@ import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import ActionLink from '@nextcloud/vue/dist/Components/ActionLink'
 import ActionRouter from '@nextcloud/vue/dist/Components/ActionRouter'
 import ActionSeparator from '@nextcloud/vue/dist/Components/ActionSeparator'
-import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
+import ListItem from '@nextcloud/vue/dist/Components/ListItem'
 import axios from '@nextcloud/axios'
 import Clipboard from 'v-clipboard'
 import moment from '@nextcloud/moment'
+import OcsResponse2Data from '../utils/OcsResponse2Data'
 import Vue from 'vue'
 
 Vue.use(Clipboard)
@@ -73,7 +80,7 @@ export default {
 	name: 'AppNavigationForm',
 
 	components: {
-		AppNavigationItem,
+		ListItem,
 		ActionButton,
 		ActionLink,
 		ActionRouter,
@@ -96,6 +103,7 @@ export default {
 			copySuccess: true,
 			copied: false,
 			loading: false,
+			submissionCount: 0,
 		}
 	},
 
@@ -124,6 +132,20 @@ export default {
 				return this.form.title
 			}
 			return t('forms', 'New form')
+		},
+
+		/**
+		 * Return form subtitle
+		 */
+		formSubTitle() {
+			if (this.form.expires) {
+				const relativeDate = moment(this.form.expires, 'X').fromNow()
+				if (this.isExpired) {
+					return t('forms', 'Expired {relativeDate}', { relativeDate })
+				}
+				return t('forms', 'Expires {relativeDate}', { relativeDate })
+			}
+			return 'No expiration'
 		},
 
 		/**
@@ -163,6 +185,10 @@ export default {
 
 			return 'formRoot'
 		},
+	},
+
+	beforeMount() {
+		this.countSubmissions()
 	},
 
 	methods: {
@@ -213,6 +239,20 @@ export default {
 			}, 4000)
 		},
 
+		async countSubmissions() {
+			this.loading = true
+
+			// Load Owned forms
+			try {
+				const response = await axios.get(generateOcsUrl('apps/forms/api/v1.1/submissions/{hash}', { hash: this.form.hash }))
+				this.submissionCount = OcsResponse2Data(response).submissions.length
+			} catch (error) {
+				showError(t('forms', 'An error occurred while loading the submissions'))
+				console.error(error)
+			}
+
+			this.loading = false
+		},
 	},
 
 }
