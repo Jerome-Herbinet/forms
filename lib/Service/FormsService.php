@@ -157,6 +157,11 @@ class FormsService {
 		// Append canSubmit, to be able to show proper EmptyContent on internal view.
 		$result['canSubmit'] = $this->canSubmit($form->getId());
 
+		// Append submissionCount if currentUser is owner
+		if ($form->getOwnerId() === $this->currentUser->getUID()) {
+			$result['submissionCount'] = $this->submissionMapper->countSubmissions($id);
+		}
+
 		return $result;
 	}
 
