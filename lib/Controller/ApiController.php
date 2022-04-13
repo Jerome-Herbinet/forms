@@ -154,6 +154,7 @@ class ApiController extends OCSController {
 				'hash' => $form->getHash(),
 				'title' => $form->getTitle(),
 				'expires' => $form->getExpires(),
+				'submissionCount' => $this->submissionMapper->countSubmissions($form->getId()),
 				'partial' => true
 			];
 		}

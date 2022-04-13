@@ -27,7 +27,7 @@
 			name: routerTarget,
 			params: { hash: form.hash }
 		}"
-		:counter-number="submissionCount"
+		:counter-number="form.submissionCount"
 		@click="mobileCloseNavigation">
 		<template #icon>
 			<div :class="icon" />
@@ -71,7 +71,6 @@ import ListItem from '@nextcloud/vue/dist/Components/ListItem'
 import axios from '@nextcloud/axios'
 import Clipboard from 'v-clipboard'
 import moment from '@nextcloud/moment'
-import OcsResponse2Data from '../utils/OcsResponse2Data'
 import Vue from 'vue'
 
 Vue.use(Clipboard)
@@ -103,7 +102,6 @@ export default {
 			copySuccess: true,
 			copied: false,
 			loading: false,
-			submissionCount: 0,
 		}
 	},
 
@@ -187,10 +185,6 @@ export default {
 		},
 	},
 
-	beforeMount() {
-		this.countSubmissions()
-	},
-
 	methods: {
 		/**
 		 * Closes the App-Navigation on mobile-devices
@@ -239,20 +233,6 @@ export default {
 			}, 4000)
 		},
 
-		async countSubmissions() {
-			this.loading = true
-
-			// Load Owned forms
-			try {
-				const response = await axios.get(generateOcsUrl('apps/forms/api/v1.1/submissions/{hash}', { hash: this.form.hash }))
-				this.submissionCount = OcsResponse2Data(response).submissions.length
-			} catch (error) {
-				showError(t('forms', 'An error occurred while loading the submissions'))
-				console.error(error)
-			}
-
-			this.loading = false
-		},
 	},
 
 }
