@@ -28,6 +28,7 @@
 			params: { hash: form.hash }
 		}"
 		:counter-number="form.submissionCount"
+		:active="isActive"
 		@click="mobileCloseNavigation">
 		<template #icon>
 			<div :class="icon" />
@@ -114,6 +115,13 @@ export default {
 				return 'icon-checkmark'
 			}
 			return 'icon-forms'
+		},
+
+		/**
+		 * Check if form is current form and set active
+		 */
+		isActive() {
+			return this.form.hash === this.$route.params.hash
 		},
 
 		isExpired() {
@@ -237,3 +245,15 @@ export default {
 
 }
 </script>
+
+<style lang="scss">
+
+.list-item__wrapper {
+	padding: 0 4px;
+}
+
+.icon-forms {
+	background-size: 16px;
+}
+
+</style>
