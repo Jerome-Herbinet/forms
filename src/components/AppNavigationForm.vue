@@ -29,12 +29,14 @@
 		}"
 		:counter-number="form.submissionCount"
 		:active="isActive"
+		class="list-item-form"
+		:class="{'list-item-form--oneline': noSubtitle}"
 		@click="mobileCloseNavigation">
 		<template #icon>
 			<div :class="icon" />
 		</template>
 		<template #subtitle>
-			{{ formSubTitle }}
+			{{ formSubtitle }}
 		</template>
 		<template v-if="!loading && !readOnly" #actions>
 			<ActionLink :href="formLink"
@@ -124,6 +126,9 @@ export default {
 			return this.form.hash === this.$route.params.hash
 		},
 
+		/**
+		 * Check if form is expired
+		 */
 		isExpired() {
 			return this.form.expires && moment().unix() > this.form.expires
 		},
@@ -141,9 +146,9 @@ export default {
 		},
 
 		/**
-		 * Return form subtitle
+		 * Return expiration details for subtitle
 		 */
-		formSubTitle() {
+		formSubtitle() {
 			if (this.form.expires) {
 				const relativeDate = moment(this.form.expires, 'X').fromNow()
 				if (this.isExpired) {
@@ -151,7 +156,14 @@ export default {
 				}
 				return t('forms', 'Expires {relativeDate}', { relativeDate })
 			}
-			return 'No expiration'
+			return ''
+		},
+
+		/**
+		 * Return, if form has Subtitle
+		 */
+		noSubtitle() {
+			return this.formSubtitle === ''
 		},
 
 		/**
@@ -248,12 +260,59 @@ export default {
 
 <style lang="scss">
 
-.list-item__wrapper {
-	padding: 0 4px;
-}
+.list-item-form {
+	.list-item {
+		padding: 0px 8px !important;
 
-.icon-forms {
-	background-size: 16px;
+		&-content {
+			&__wrapper {
+				height: 52px;
+			}
+			&__main {
+				padding: 8px 0px;
+			}
+			&__actions {
+				margin-left: 4px;
+			}
+		}
+
+		&--active:focus {
+			background-color: var(--color-primary-light) !important;
+		}
+
+		&__wrapper {
+			padding: 0 4px;
+		}
+
+		.line-one, .line-two {
+			margin: -4px auto;
+		}
+
+		.icon-forms {
+			background-size: 16px;
+		}
+	}
+
+	&--oneline {
+		.list-item-content__main {
+			display: flex;
+			flex-direction: row;
+
+			.line-one {
+				margin-left: 0px;
+				overflow: hidden;
+			}
+			.line-two {
+				margin-right: 0px;
+				margin-left: 4px;
+
+				&__subtitle {
+					display: none;
+				}
+			}
+		}
+
+	}
 }
 
 </style>
